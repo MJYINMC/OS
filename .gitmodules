@@ -1,3 +1,6 @@
 [submodule "os21fall"]
 	path = os21fall
 	url = https://gitee.com/zjusec/os21fall.git
+[submodule "linux"]
+	path = linux
+	url = http://github.com/torvalds/linux.git
