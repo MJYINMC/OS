@@ -2,7 +2,7 @@
 #include "sbi.h"
 
 void putchar(char c){
-    sbi_ecall(c, 0, 0, 0, 0, 0, 0x0, 0x1);
+    sbi_ecall(c, 0, 0, 0, 0, 0, 0, SBI_PUTCHAR);
 }
 
 void puts(char *s) {
@@ -13,10 +13,17 @@ void puts(char *s) {
 }
 
 void puti(int x) {
-    if(x<10){
-        putchar(x+'0');
-    }else{
-        puti(x/10);
-        putchar(x%10 + '0');
+    if(x < 0){
+        putchar('-');
+        x *= -1;
+    }
+    char buf[20];
+    int loc = 0;
+    while(x > 0){
+        buf[loc++] = x%10 + '0';
+        x /= 10;
+    }
+    while(loc > 0){
+        putchar(buf[--loc]);
     }
 }
