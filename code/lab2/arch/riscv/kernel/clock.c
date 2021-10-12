@@ -15,7 +15,6 @@ unsigned long get_cycles() {
 void clock_set_next_event() {
     // 下一次 时钟中断 的时间点
     unsigned long next = get_cycles() + TIMECLOCK;
-
     // 使用 sbi_ecall 来完成对下一次时钟中断的设置
     sbi_ecall(next, 0, 0, 0, 0, 0, 0, 0);
 } 

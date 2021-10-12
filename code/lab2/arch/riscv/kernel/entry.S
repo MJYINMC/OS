@@ -46,7 +46,7 @@ _traps:
 
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack
     ld t0, 256(sp)
-    csrw sepc,t0
+    csrw sepc, t0
     ld x0, 0(sp)
     ld x1, 8(sp)
     ld x3, 24(sp)
@@ -79,6 +79,6 @@ _traps:
     ld x30, 240(sp)
     ld x31, 248(sp)
     ld x2, 16(sp)
-
+    addi sp, sp, 264
     # 4. return from trap
     sret
