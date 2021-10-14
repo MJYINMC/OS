@@ -7,7 +7,7 @@ void test() {
     unsigned long ctime;
     while (1){
         ctime = get_cycles();
-        if(ctime - ptime >= 10000000){
+        if(ctime - ptime >= 5000000){
             printk("Kernel is running!\n");
             ptime =  ctime;
         }
