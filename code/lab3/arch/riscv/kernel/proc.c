@@ -60,7 +60,6 @@ void dummy(){
 void do_timer(){
     clock_set_next_event();
     if(current == idle){
-        printk("initial state!\n");
         schedule();
     }else{
         current -> counter--;
