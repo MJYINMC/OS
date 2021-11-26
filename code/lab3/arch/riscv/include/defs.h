@@ -12,18 +12,18 @@
 
 #define csr_read(csr)                       \
 ({                                          \
-    register uint64 __v;                    \
-    asm volatile ("csrr %0," #csr         \
-                    : : "r" (__v)           \
+    register uint64 val;                    \
+    asm volatile ("csrr %[val]," #csr            \
+                    : [val]"=r" (val)           \
                  );                         \
-    __v;                                    \
+    val;                                    \
 })
 
 #define csr_write(csr, val)                         \
 ({                                                  \
-    uint64 __v = (uint64)(val);                     \
-    asm volatile ("csrw " #csr ", %0"               \
-                    : : "r" (__v)                   \
+    asm volatile ("csrw " #csr ", %[__v]"               \
+                    :                              \
+                    : [__v]"r"(val)                   \
                     : "memory");                    \
 })
 
