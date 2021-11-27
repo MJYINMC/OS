@@ -39,19 +39,15 @@ void task_init() {
         task[i] -> thread.ra = (uint64)__dummy;
         task[i] -> thread.sp = (uint64)task[i] + PGSIZE;
     }
-
     printk("...proc_init done!\n");
 }
 
 void dummy(){
-    uint64 MOD = 1000000007;
-    uint64 auto_inc_local_var = 0;
     int last_counter = -1;
     while(1) {
         if (last_counter == -1 || current->counter != last_counter) {
             last_counter = current->counter;
-            auto_inc_local_var = (auto_inc_local_var + 1) % MOD;
-            printk("[PID = %d] is running. auto_inc_local_var = %d\n", current->pid, auto_inc_local_var);
+            printk("[PID = %d] is running. thread space begin at %lx\n", current->pid, current->thread.sp);
         }
     }
 }
@@ -83,7 +79,7 @@ void schedule(){
     select:
     for(int i = 1; i < NR_TASKS; i++){
         if(task[i] -> state == TASK_RUNNING){
-            if(task[i] -> counter > 0 && task[i] -> counter < next -> counter){
+            if(task[i] -> counter > 0 && task[i] -> counter <= next -> counter){
                 next = task[i];
             }
         }
