@@ -61,40 +61,36 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, int perm) {
     可以使用 V bit 来判断页表项是否存在
     */
     printk("va=%lx pa=%lx sz=%lx\n", va, pa, sz);
-    uint64 index, addr, sec_index, thi_index;
+    uint64 sec_idx, addr, fir_idx, zero_idx;
     uint64 * sec_pgtbl, * thi_pgtbl;
-    for(uint64 offset = 0; offset <= sz; offset += PGSIZE){
+    for(uint64 offset = 0; offset < sz; offset += PGSIZE){
         addr =  va + offset;
-        index = (addr & VPN2MASK) >> 30;
-        sec_index = (addr & VPN1MASK) >> 21;
-        thi_index = (addr & VPN0MASK) >> 12;
-        if(pgtbl[index] & 0x1){
-            sec_pgtbl = (uint64*) (((uint64)(pgtbl[index] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
-            // printk("%lx\n", sec_pgtbl);
-            if(sec_pgtbl[sec_index] & 0x1){
-                thi_pgtbl = (uint64*) (((uint64)(sec_pgtbl[sec_index] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
-                // printk("%lx\n", thi_pgtbl);
-                if((thi_pgtbl[thi_index] & 0x1)){
+        sec_idx = (addr & VPN2MASK) >> 30;
+        fir_idx = (addr & VPN1MASK) >> 21;
+        zero_idx = (addr & VPN0MASK) >> 12;
+        if(pgtbl[sec_idx] & 0x1){
+            sec_pgtbl = (uint64*) (((uint64)(pgtbl[sec_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
+            if(sec_pgtbl[fir_idx] & 0x1){
+                thi_pgtbl = (uint64*) (((uint64)(sec_pgtbl[fir_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
+                if((thi_pgtbl[zero_idx] & 0x1)){
                     continue;
                 }else{
-                    thi_pgtbl[thi_index] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
+                    thi_pgtbl[zero_idx] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
                 }
             }else{
                 thi_pgtbl = (uint64 *)kalloc(); 
-                sec_pgtbl[sec_index] = ((((uint64)thi_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
-                thi_pgtbl[thi_index] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
+                sec_pgtbl[fir_idx] = ((((uint64)thi_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
+                thi_pgtbl[zero_idx] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
             }
         }else{
             sec_pgtbl = (uint64 *)kalloc();
             thi_pgtbl = (uint64 *)kalloc();
-            // printk("sec_pgtbl = %lx\n", sec_pgtbl);
-            // printk("physical page num = %lx\n", ((uint64)sec_pgtbl - PA2VA_OFFSET) >> 12);
             // 设置第2级页表
-            pgtbl[index] = ((((uint64)sec_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
+            pgtbl[sec_idx] = ((((uint64)sec_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
             // 设置第1级页表
-            sec_pgtbl[sec_index] = ((((uint64)thi_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
+            sec_pgtbl[fir_idx] = ((((uint64)thi_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
             // 设置第0级页表
-            thi_pgtbl[thi_index] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
+            thi_pgtbl[zero_idx] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
         }
     }
 }
