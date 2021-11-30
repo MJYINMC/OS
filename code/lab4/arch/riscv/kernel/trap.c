@@ -1,5 +1,6 @@
 #include "printk.h"
 #include "clock.h"
+#include "proc.h"
 void trap_handler(unsigned long scause, unsigned long sepc) {
     // 通过 `scause` 判断trap类型
     // 如果是interrupt 判断是否是timer interrupt

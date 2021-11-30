@@ -1,5 +1,6 @@
     .section .text.entry
     .align 2
+    .extern trap_handler
     .globl _traps 
 _traps:
     # 1. save 32 registers and sepc to stack
@@ -39,6 +40,8 @@ _traps:
 
 
     # 2. call trap_handler
+    csrr a0, scause
+    csrr a1, sepc
     call trap_handler
 
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack

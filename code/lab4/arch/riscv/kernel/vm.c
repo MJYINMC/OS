@@ -122,6 +122,9 @@ void setup_vm_final(void) {
     csr_write(satp, ((((uint64)(swapper_pg_dir) - PA2VA_OFFSET) >> 12) | ((uint64) 0x8 << 60)));
     // flush TLB
     asm volatile("sfence.vma zero, zero");
+    // printk("...setup_vm_final done!\n");
+    // uint64 * test_ptr = _srodata;
+    // * test_ptr = 0xFFFF;
     return;
 }
 
