@@ -10,8 +10,7 @@ void trap_handler(unsigned long scause, unsigned long sepc) {
     if(scause & int_bit){
         switch (scause & ~int_bit){
             case 0x5:
-                printk("[S] Supervisor Mode Timer Interrupt\n");
-                clock_set_next_event();
+                do_timer();
                 break;
             default:
                 break;

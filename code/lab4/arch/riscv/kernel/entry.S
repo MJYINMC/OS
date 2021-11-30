@@ -39,7 +39,7 @@ _traps:
 
 
     # 2. call trap_handler
-    call do_timer
+    call trap_handler
 
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack
     ld x0, 0(sp)

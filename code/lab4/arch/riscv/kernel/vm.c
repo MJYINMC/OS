@@ -62,35 +62,35 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, int perm) {
     */
     printk("va=%lx pa=%lx sz=%lx\n", va, pa, sz);
     uint64 sec_idx, addr, fir_idx, zero_idx;
-    uint64 * sec_pgtbl, * thi_pgtbl;
+    uint64 * fir_pgtbl, * zero_pgtbl;
     for(uint64 offset = 0; offset < sz; offset += PGSIZE){
         addr =  va + offset;
         sec_idx = (addr & VPN2MASK) >> 30;
         fir_idx = (addr & VPN1MASK) >> 21;
         zero_idx = (addr & VPN0MASK) >> 12;
         if(pgtbl[sec_idx] & 0x1){
-            sec_pgtbl = (uint64*) (((uint64)(pgtbl[sec_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
-            if(sec_pgtbl[fir_idx] & 0x1){
-                thi_pgtbl = (uint64*) (((uint64)(sec_pgtbl[fir_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
-                if((thi_pgtbl[zero_idx] & 0x1)){
+            fir_pgtbl = (uint64*) (((uint64)(pgtbl[sec_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
+            if(fir_pgtbl[fir_idx] & 0x1){
+                zero_pgtbl = (uint64*) (((uint64)(fir_pgtbl[fir_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
+                if((zero_pgtbl[zero_idx] & 0x1)){
                     continue;
                 }else{
-                    thi_pgtbl[zero_idx] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
+                    zero_pgtbl[zero_idx] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
                 }
             }else{
-                thi_pgtbl = (uint64 *)kalloc(); 
-                sec_pgtbl[fir_idx] = ((((uint64)thi_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
-                thi_pgtbl[zero_idx] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
+                zero_pgtbl = (uint64 *)kalloc(); 
+                fir_pgtbl[fir_idx] = ((((uint64)zero_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
+                zero_pgtbl[zero_idx] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
             }
         }else{
-            sec_pgtbl = (uint64 *)kalloc();
-            thi_pgtbl = (uint64 *)kalloc();
+            fir_pgtbl = (uint64 *)kalloc();
+            zero_pgtbl = (uint64 *)kalloc();
             // 设置第2级页表
-            pgtbl[sec_idx] = ((((uint64)sec_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
+            pgtbl[sec_idx] = ((((uint64)fir_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
             // 设置第1级页表
-            sec_pgtbl[fir_idx] = ((((uint64)thi_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
+            fir_pgtbl[fir_idx] = ((((uint64)zero_pgtbl - PA2VA_OFFSET) >> 12) << 10) | 0x1;
             // 设置第0级页表
-            thi_pgtbl[zero_idx] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
+            zero_pgtbl[zero_idx] = (((pa + offset) >> 12) << 10) | (perm << 1) | 0x1;
         }
     }
 }
