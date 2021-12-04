@@ -57,7 +57,7 @@ void test_address(uint64 addr){
     zero_idx = (addr & VPN0MASK) >> 12;
     fir_pgtbl = (uint64*) (((uint64)(swapper_pg_dir[sec_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
     zero_pgtbl = (uint64*) (((uint64)(fir_pgtbl[fir_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
-    printk("%lx\n", zero_pgtbl[zero_idx]);
+    printk("%lx\n", (zero_pgtbl[zero_idx] & 0xE)>>1);
 }
 
 /* 创建多级页表映射关系 */
@@ -71,7 +71,7 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz, int perm) {
     创建多级页表的时候可以使用 kalloc() 来获取一页作为页表目录
     可以使用 V bit 来判断页表项是否存在
     */
-    printk("va=%lx pa=%lx sz=%lx\n", va, pa, sz);
+    printk("va=%lx pa=%lx sz=%lx perm=%lx\n", va, pa, sz, perm);
     uint64 sec_idx, addr, fir_idx, zero_idx;
     uint64 * fir_pgtbl, * zero_pgtbl;
     for(uint64 offset = 0; offset < sz; offset += PGSIZE){
@@ -135,7 +135,7 @@ void setup_vm_final(void) {
     test_address((uint64)swapper_pg_dir);
     test_address((uint64)_srodata);
     test_address((uint64)test);
-    
+
     return;
 }
 
