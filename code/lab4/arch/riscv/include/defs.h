@@ -20,7 +20,7 @@
 
 #define csr_read(csr)                       \
 ({                                          \
-    register uint64 val;                    \
+    register unsigned long val;                    \
     asm volatile ("csrr %[val]," #csr            \
                     : [val]"=r" (val)           \
                  );                         \

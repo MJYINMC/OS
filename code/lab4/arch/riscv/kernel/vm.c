@@ -8,7 +8,7 @@ extern char _etext[];
 extern char _srodata[];
 extern char _erodata[];
 extern char _sdata[];
-
+extern void test();
 /* early_pgtbl: 用于 setup_vm 进行 1GB 的 映射。 */
 uint64 early_pgtbl[512] __attribute__((__aligned__(0x1000)));
 /* swapper_pg_dir: kernel pagetable 根目录， 在 setup_vm_final 进行映射。 */
@@ -47,6 +47,17 @@ void setup_vm(void) {
     addr = VM_START;
     index = (addr & VPN2MASK) >> 30;
     early_pgtbl[index] = (phy_index << 28) | 0xF;
+}
+
+void test_address(uint64 addr){
+    uint64 * fir_pgtbl, * zero_pgtbl;
+    uint64 sec_idx, fir_idx, zero_idx;
+    sec_idx = (addr & VPN2MASK) >> 30;
+    fir_idx = (addr & VPN1MASK) >> 21;
+    zero_idx = (addr & VPN0MASK) >> 12;
+    fir_pgtbl = (uint64*) (((uint64)(swapper_pg_dir[sec_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
+    zero_pgtbl = (uint64*) (((uint64)(fir_pgtbl[fir_idx] & PTEMASK) >> 10 << 12) + PA2VA_OFFSET);
+    printk("%lx\n", zero_pgtbl[zero_idx]);
 }
 
 /* 创建多级页表映射关系 */
@@ -116,15 +127,15 @@ void setup_vm_final(void) {
     end = (uint64)(VM_START + PHY_SIZE);
     create_mapping(swapper_pg_dir, start, start - PA2VA_OFFSET, end - start, 3);
     
-    // create_mapping(swapper_pg_dir, PHY_START, PHY_START, PHY_SIZE, 7);
-
     // set satp with swapper_pg_dir
     csr_write(satp, ((((uint64)(swapper_pg_dir) - PA2VA_OFFSET) >> 12) | ((uint64) 0x8 << 60)));
     // flush TLB
     asm volatile("sfence.vma zero, zero");
-    // printk("...setup_vm_final done!\n");
-    // uint64 * test_ptr = _srodata;
-    // * test_ptr = 0xFFFF;
+    printk("...setup_vm_final done!\nTest if correct\n");
+    test_address((uint64)swapper_pg_dir);
+    test_address((uint64)_srodata);
+    test_address((uint64)test);
+    
     return;
 }
 
