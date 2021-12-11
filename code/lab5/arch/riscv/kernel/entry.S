@@ -4,12 +4,18 @@
     .extern current
     .globl _traps 
 _traps:
-    # 首先保存U-mode的sp
+    # 利用用户态sp暂存之后会用到的t0
+    add sp, sp, -8
+    sd t0, 0(sp)
+
+    # 保存U-mode的sp
     csrw sscratch, sp
+
     # 加载S-mode的sp
     la t0, current
     ld t0, 0(t0)
     ld sp, 48(t0)
+    
     # 1. save 32 registers and sepc to stack
     addi sp, sp, -264
     sd x0, 0(sp)
@@ -94,8 +100,12 @@ _traps:
     la t0, current
     ld t0, 0(t0)
     sd sp, 48(t0)
+
     # 返回U-mode
     csrr sp, sscratch
+    # 恢复之前暂存的t0
+    ld t0, 0(sp)
+    add sp, sp, 8
     sret
 
     .globl __dummy
