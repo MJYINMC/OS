@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.cpp": "cpp",
+        "defs.h": "c",
+        "string.h": "c",
+        "types.h": "c",
+        "proc.h": "c",
+        "printk.h": "c",
+        "clock.h": "c",
+        "vm.h": "c",
+        "syscall.h": "c",
+        "cstdio": "c",
+        "stddef.h": "c"
+    }
+}
