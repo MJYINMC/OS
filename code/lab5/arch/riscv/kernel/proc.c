@@ -98,7 +98,7 @@ void schedule(){
     /*所有运行状态下的线程运行剩余时间都为0*/
     if(next -> counter == 0xFFFFFFFFFFFFFFFF){
         for(int i = 1; i < NR_TASKS; i++){
-            task[i] -> counter = 2;
+            task[i] -> counter = rand();
             printk("SET [PID = %d COUNTER = %d]\n", task[i] -> pid, task[i] -> counter);
         }
         goto select;
