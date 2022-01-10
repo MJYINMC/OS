@@ -10,6 +10,7 @@
         "vm.h": "c",
         "syscall.h": "c",
         "cstdio": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "mm.h": "c"
     }
 }
