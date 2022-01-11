@@ -5,12 +5,7 @@
     .globl _traps 
 _traps:
     # 保存U-mode的sp
-    csrrw sp,sscratch,sp
-
-    # 加载S-mode的sp
-    la t0, current
-    ld t0, 0(t0)
-    ld sp, 48(t0)
+    csrrw sp, sscratch, sp
         
     # 1. save 32 registers and sepc to stack
     addi sp, sp, -264
@@ -92,11 +87,6 @@ _traps:
     ld x2, 16(sp)
     addi sp, sp, 264
 
-    # 保存S-mode的sp
-    la t0, current
-    ld t0, 0(t0)
-    sd sp, 48(t0)
-
     # 返回U-mode
     csrrw sp, sscratch, sp
     sret
@@ -104,8 +94,8 @@ _traps:
     .globl __dummy
     .extern dummy
 __dummy:
-    // sret回去之后进入x了用户态，需要使用用户态的栈
-    csrr sp, sscratch
+    // sret回去之后进入了用户态，需要使用用户态的栈
+    csrrw sp, sscratch, sp
     sret
 
     .globl __switch_to
